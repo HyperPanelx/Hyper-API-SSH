@@ -123,11 +123,12 @@ class dbinsert:
         self.user.update_one({"user": user}, {"$set": {"multi": multi}})
     
    
-    def change_detail_user(self,user,telegram_id,phone,email,traffic):
+    def change_detail_user(self,user,telegram_id,phone,email,traffic,server):
         self.user.update_one({"user": user}, {"$set": {"telegram_id": telegram_id}})
         self.user.update_one({"user": user}, {"$set": {"phone": phone}})
         self.user.update_one({"user": user}, {"$set": {"email": email}})
         self.user.update_one({"user": user}, {"$set": {"traffic": traffic}})
+        self.user.update_one({"user": user}, {"$set": {"server": server}})
 
     def user_mongo(self,user,userhash):
         general = { user: {

@@ -273,6 +273,86 @@ async def user_gen(multi:int,exdate:str,count:int,server:str,current_user: User 
     except:
         return False
     
+@app.post("/del-kill-users")
+async def del_kill_users(items: List[str],mode:str,server:str):
+    try:
+        if server == 'localhost':
+            if mode == 'del':
+                for user in items:
+                    obj.del_user(user)
+                return True
+            elif mode == 'kill':
+                for user in items:
+                    obj.killall(user)
+                return True
+        else:
+            if mode == 'del':
+                for user in items:
+                    remote.del_user(server,user)
+                return True
+            elif mode == 'kill':
+                for user in items:
+                    remote.killall(user,server)
+                return True
+    except:
+        return False
+    
+@app.get("/search-user")
+def search_user(username:str,current_user: User = Depends(get_current_active_user)):
+    try:
+        res = mg.select_like(username)
+        return res
+    except:
+        return False
+
+@app.get("/change-detail")
+def change_detail(username:str,
+                   telegram_id:str | None = '',
+                   phone:int | None = '',
+                   email:str | None = '',
+                   traffic:str | None = '',
+                   server:str | None = '',
+                   current_user: User = Depends(get_current_active_user)):
+    try:
+        mg.change_detail_user(username,telegram_id,phone,email,traffic,server)
+        return True
+    except:
+        return False
+    
+@app.get("/change-status")
+def change_status(username:str,
+                   status:str,
+                   server:str | None = '',
+                   current_user: User = Depends(get_current_active_user)):
+    try:
+        if server == 'localhost':
+            dict={
+                'unlock':obj.unlockuser,
+                'lock':obj.lockuser,
+            }
+            dict.get(status)(username)
+            return {'username':username,'status':status}
+        else:
+            dict_remote={
+                'unlock':remote.unlockuser,
+                'lock':remote.lockuser,
+            }
+            dict_remote.get(status)(username)(server)
+            return {'username':username,'status':status}
+    except Exception as e :
+        print(e)
+        return False
+
+@app.get("/change-multi")
+def change_multi(username:str,
+                   multi:int,
+                   current_user: User = Depends(get_current_active_user)):
+    try:
+        mg.update_multi(username,multi)
+        return {'username':username,'multi':multi}
+    except:
+        return False
+    
 # @app.get("/resource-usage")
 # def resource_usage(server:str,current_user: User = Depends(get_current_active_user)):
 #     try:
@@ -284,21 +364,7 @@ async def user_gen(multi:int,exdate:str,count:int,server:str,current_user: User 
 #             pass#####ToDo
 #     except:
 #         return False
-    
-# @app.post("/del-kill-users")
-# async def del_kill_users(items: List[str],mode:str):
-#     try:
-#         if mode == 'del':
-#             for user in items:
-#                 obj.del_user(user)
-#             return True
-#         elif mode == 'kill':
-#             for user in items:
-#                 obj.killall(user)
-#             return True
-#     except:
-#         return False
-    
+
 # @app.get("/status-clients")
 # def status_clients(current_user: User = Depends(get_current_active_user)):
 #     try:
@@ -317,52 +383,5 @@ async def user_gen(multi:int,exdate:str,count:int,server:str,current_user: User 
 #             'disabled_users':disable_users,
 #         }
 #         return js
-#     except:
-#         return False
-    
-# @app.get("/search-user")
-# def search_user(username:str,current_user: User = Depends(get_current_active_user)):
-#     try:
-#         res = mg.select_like(username)
-#         return res
-#     except:
-#         return False
-
-# @app.get("/change-detail")
-# def change_detail(username:str,
-#                    telegram_id:str | None = '',
-#                    phone:int | None = '',
-#                    email:str | None = '',
-#                    traffic:str | None = '',
-#                    current_user: User = Depends(get_current_active_user)):
-#     try:
-#         mg.change_detail_user(username,telegram_id,phone,email,traffic)
-#         return True
-#     except:
-#         return False
-    
-# @app.get("/change-status")
-# def change_status(username:str,
-#                    status:str,
-#                    current_user: User = Depends(get_current_active_user)):
-#     try:
-#         dict={
-#             'unlock':obj.unlockuser,
-#             'lock':obj.lockuser,
-#         }
-#         dict.get(status)(username)
-#         return {'username':username,'status':status}
-#     except Exception as e :
-#         print(e)
-#         return False
-
-
-# @app.get("/change-multi")
-# def change_multi(username:str,
-#                    multi:int,
-#                    current_user: User = Depends(get_current_active_user)):
-#     try:
-#         mg.update_multi(username,multi)
-#         return {'username':username,'multi':multi}
 #     except:
 #         return False
