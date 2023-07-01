@@ -251,17 +251,6 @@ def kill_user_(username:str,server:str,current_user: User = Depends(get_current_
     except:
         return False
 
-@app.get("/resource-usage")
-def resource_usage(server:str,current_user: User = Depends(get_current_active_user)):
-    try:
-        if server == 'localhost':
-            res = obj.res_usage()
-            net = obj.network_usage()
-            return res,net
-        else:
-            pass#####ToDo
-    except:
-        return False
 
 @app.post("/user-gen")
 async def user_gen(multi:int,exdate:str,count:int,server:str,current_user: User = Depends(get_current_active_user)):
@@ -274,77 +263,89 @@ async def user_gen(multi:int,exdate:str,count:int,server:str,current_user: User 
             return res
     except:
         return False
+    
+# @app.get("/resource-usage")
+# def resource_usage(server:str,current_user: User = Depends(get_current_active_user)):
+#     try:
+#         if server == 'localhost':
+#             res = obj.res_usage()
+#             net = obj.network_usage()
+#             return res,net
+#         else:
+#             pass#####ToDo
+#     except:
+#         return False
+    
+# @app.post("/del-kill-users")
+# async def del_kill_users(items: List[str],mode:str):
+#     try:
+#         if mode == 'del':
+#             for user in items:
+#                 obj.del_user(user)
+#             return True
+#         elif mode == 'kill':
+#             for user in items:
+#                 obj.killall(user)
+#             return True
+#     except:
+#         return False
+    
+# @app.get("/status-clients")
+# def status_clients(current_user: User = Depends(get_current_active_user)):
+#     try:
+#         list = obj.active_user()
+#         active = len(list)
+#         all_users = mg.select_users()
+#         all_users = len(all_users)
+#         disable_users = mg.select_disable_user()
+#         disable_users = len(disable_users)
+#         enable_users = mg.select_enable_user()
+#         enable_users = len(enable_users)
+#         js = {
+#             'all_users':all_users,
+#             'active_users': active,
+#             'enable_users':enable_users,
+#             'disabled_users':disable_users,
+#         }
+#         return js
+#     except:
+#         return False
+    
+# @app.get("/search-user")
+# def search_user(username:str,current_user: User = Depends(get_current_active_user)):
+#     try:
+#         res = mg.select_like(username)
+#         return res
+#     except:
+#         return False
 
-@app.post("/del-kill-users")
-async def del_kill_users(items: List[str],mode:str):
-    try:
-        if mode == 'del':
-            for user in items:
-                obj.del_user(user)
-            return True
-        elif mode == 'kill':
-            for user in items:
-                obj.killall(user)
-            return True
-    except:
-        return False
+# @app.get("/change-detail")
+# def change_detail(username:str,
+#                    telegram_id:str | None = '',
+#                    phone:int | None = '',
+#                    email:str | None = '',
+#                    traffic:str | None = '',
+#                    current_user: User = Depends(get_current_active_user)):
+#     try:
+#         mg.change_detail_user(username,telegram_id,phone,email,traffic)
+#         return True
+#     except:
+#         return False
     
-@app.get("/status-clients")
-def status_clients(current_user: User = Depends(get_current_active_user)):
-    try:
-        list = obj.active_user()
-        active = len(list)
-        all_users = mg.select_users()
-        all_users = len(all_users)
-        disable_users = mg.select_disable_user()
-        disable_users = len(disable_users)
-        enable_users = mg.select_enable_user()
-        enable_users = len(enable_users)
-        js = {
-            'all_users':all_users,
-            'active_users': active,
-            'enable_users':enable_users,
-            'disabled_users':disable_users,
-        }
-        return js
-    except:
-        return False
-    
-@app.get("/search-user")
-def search_user(username:str,current_user: User = Depends(get_current_active_user)):
-    try:
-        res = mg.select_like(username)
-        return res
-    except:
-        return False
-
-@app.get("/change-detail")
-def change_detail(username:str,
-                   telegram_id:str | None = '',
-                   phone:int | None = '',
-                   email:str | None = '',
-                   traffic:str | None = '',
-                   current_user: User = Depends(get_current_active_user)):
-    try:
-        mg.change_detail_user(username,telegram_id,phone,email,traffic)
-        return True
-    except:
-        return False
-    
-@app.get("/change-status")
-def change_status(username:str,
-                   status:str,
-                   current_user: User = Depends(get_current_active_user)):
-    try:
-        dict={
-            'unlock':obj.unlockuser,
-            'lock':obj.lockuser,
-        }
-        dict.get(status)(username)
-        return {'username':username,'status':status}
-    except Exception as e :
-        print(e)
-        return False
+# @app.get("/change-status")
+# def change_status(username:str,
+#                    status:str,
+#                    current_user: User = Depends(get_current_active_user)):
+#     try:
+#         dict={
+#             'unlock':obj.unlockuser,
+#             'lock':obj.lockuser,
+#         }
+#         dict.get(status)(username)
+#         return {'username':username,'status':status}
+#     except Exception as e :
+#         print(e)
+#         return False
 
 
 @app.get("/change-multi")
