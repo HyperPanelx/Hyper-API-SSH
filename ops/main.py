@@ -32,7 +32,7 @@ class sshtnl:
             for strip in reg:
                 if strip != 'root@notty' and strip != 'root' and strip != '[accepted]':
                     list.append(strip)
-            return list
+            return {'localhost':'localhost','users':list}
         except:
             False
 

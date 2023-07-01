@@ -104,8 +104,9 @@ def active_user_(server:str | None = '',current_user: User = Depends(get_current
         res = obj.active_user()
         return res
     else:
+        local = obj.active_user()
         res = remote.all_active_users()
-        return res
+        return local,res
 
 
 @app.get("/add-user")
@@ -356,12 +357,12 @@ async def user_gen(multi:int,exdate:str,count:int,server:str,current_user: User 
 #         return False
 
 
-@app.get("/change-multi")
-def change_multi(username:str,
-                   multi:int,
-                   current_user: User = Depends(get_current_active_user)):
-    try:
-        mg.update_multi(username,multi)
-        return {'username':username,'multi':multi}
-    except:
-        return False
+# @app.get("/change-multi")
+# def change_multi(username:str,
+#                    multi:int,
+#                    current_user: User = Depends(get_current_active_user)):
+#     try:
+#         mg.update_multi(username,multi)
+#         return {'username':username,'multi':multi}
+#     except:
+#         return False
