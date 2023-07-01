@@ -193,6 +193,19 @@ class dbinsert:
                     }
                 list.append(js)
         return list
+    def list_servers(self):
+        list = []
+        for dict in self.server.find():
+            host=dict['host']
+            port=dict['port']
+            status=dict['status']
+            js={
+                'host':host,
+                'port':port,
+                'status':status,
+                }
+            list.append(js)
+        return list
     
     def select_specific_servers(self,server):
         list = []

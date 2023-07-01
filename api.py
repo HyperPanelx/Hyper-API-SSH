@@ -89,6 +89,14 @@ async def add_server(ip_address:str,
         return True
     except:
         return False
+    
+@app.get("/list-servers")
+async def list_servers(current_user: User = Depends(get_current_active_user)):
+    try:
+        res = mg.list_servers()
+        return res
+    except:
+        return False
 
 @app.get("/active-user")
 def active_user_(server:str | None = '',current_user: User = Depends(get_current_active_user)):

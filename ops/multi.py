@@ -54,9 +54,8 @@ class MultiOps:
         for dict in self.mg.select_servers():
             ipaddress=dict['host']
             username=dict['username']
-
             res=self.active_user(ipaddress,username)
-            list.append(res)
+            list.append({'ip-address':ipaddress,'users':res})
         return list
     
 
