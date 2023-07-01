@@ -8,23 +8,26 @@ from ops.passw import passgen
 from names_generator import generate_name
 import time
 from pymongo.errors import DuplicateKeyError
+import traceback
 
 class MultiOps:
-    def __init__(self,hostadd,hostport,hostusername,hostpasswd):
-        self.host=hostadd
-        self.port=hostport
-        self.username=hostusername
-        self.passwd=hostpasswd
+    def __init__(self):
         self.mg = dbinsert()
-
-    def __ssh_main(self,command):
+    
+    def __ssh_main(self,command,server):
+        res = self.mg.select_specific_servers(server)
+        for dict in res:
+            ipaddress=dict['host']
+            port=dict['port']
+            username=dict['username']
+            passwd=dict['passwd']
         try:
             with paramiko.SSHClient() as ssh:
                 ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-                ssh.connect(self.host,
-                            self.port,
-                            self.username,
-                            self.passwd,
+                ssh.connect(ipaddress,
+                            port,
+                            username,
+                            passwd,
                             allow_agent=False,
                             look_for_keys=False
                             )
@@ -35,80 +38,59 @@ class MultiOps:
                 return out
         except:
             False
-    
+
     def get_user_tun(self,user):
         try:
             command="ps aux | grep sshd"
-            result=self.__ssh_main(self,command)
+            result=self.__ssh_main(command)
             est = re.findall(f'sshd: ({user}[^\w]*)\n',result)
             lenuser=(len(est))
             return lenuser
         except:
             False
 
-    def active_user(self):
+    def all_active_users(self):
+        list=[]
+        for dict in self.mg.select_servers():
+            ipaddress=dict['host']
+            username=dict['username']
+
+            res=self.active_user(ipaddress,username)
+            list.append(res)
+        return list
+    
+
+    def active_user(self,server,username):
         try:
             list=[]
             command='ps aux | grep sshd'
-            result = self.__ssh_main(self,command)
+            result = self.__ssh_main(command,server)
             reg = re.findall('sshd: ([aA-zZ][^\s]*)\n',result)
             for strip in reg:
-                if strip != 'root@notty' and strip != 'root':
+                if strip != 'root@notty' and strip != 'root' and strip != '[accepted]' and strip != f'{username}@notty': 
                     list.append(strip)
             return list
-        except:
+        except Exception:
+            print(traceback.format_exc())
             False
 
-    def killall(self,user):            
+    def killall(self,user,server):            
         command=f"killall -u {user}"
-        self.__ssh_main(self,command)
+        self.__ssh_main(command,server)
 
-    def lockuser(self,user):
+    def lockuser(self,user,server):
         command=f'usermod -L {user}'
-        self.__ssh_main(self,command)
+        self.__ssh_main(command,server)
         self.mg.update_status_user(user,'disable')
         
-    def unlockuser(self,user):
+    def unlockuser(self,user,server):
         command=f'usermod -U {user}'
-        self.__ssh_main(self,command)
+        self.__ssh_main(command,server)
         self.mg.update_status_user(user,'enable')
 
-    async def add_user(self,passwdgen,
-                       username_,
-                       multi_,
-                       exdate_,
-                       telegram_id_,
-                       phone_,
-                       email_,
-                       referral_,
-                       traffic_,
-                       desc_,
-                       server):
-            try:
-                user_model = User(
-                    user=username_,
-                    multi=multi_,
-                    exdate=exdate_,
-                    telegram_id=telegram_id_,
-                    phone=phone_,
-                    email=email_ ,
-                    referral=referral_ ,
-                    traffic=traffic_ ,
-                    desc=desc_,
-                    passwd=passwdgen,
-                    status='enable',
-                    server=server,
-                )
-                await user_model.insert()  
-                self.mg.insert_count_kill(username_,'0',server)
-               
-            except DuplicateKeyError:
-                # Handle duplicate key error
-                print("Duplicate key value")
-                return 'exist'
-                
+    async def add_user(self,server,passwdgen,username_):
             command=f"useradd {username_} --shell /usr/sbin/nologin ; echo {username_}:{passwdgen} | chpasswd"
-            res = self.__ssh_main(self,command)
+            res = self.__ssh_main(command,server)
             reres = re.findall('exists',res)
             if reres == ['exists']:
                 print(reres)
@@ -116,23 +98,20 @@ class MultiOps:
 
 
 
-    def chng_passwd(self,user,passwd):
+    def chng_passwd(self,server,user,passwd):
         command=f'echo "{passwd}" | passwd --stdin {user}'
-        self.__ssh_main(self,command)
+        self.__ssh_main(command,server)
         try:
             self.mg.user_chng_passwd(user,passwd)
         except:
             pass
 
 
-    def del_user(self,user):
+    def del_user(self,server,user):
         command=f'userdel {user}'
-        result=self.__ssh_main(self,command)
+        result=self.__ssh_main(command,server)
         self.mg.del_user(user)
 
-    def ops_cm(self,command):
-        result=self.__ssh_main(self,command)
-        return result
 
     def res_usage(self):
         cpu = psutil.cpu_percent(4)
@@ -192,14 +171,14 @@ class MultiOps:
                     print("Duplicate key value")
                     return 'exist'
                 command=f"useradd {username} --shell /usr/sbin/nologin"
-                res = self.__ssh_main(self,command)
+                res = self.__ssh_main(command)
                 if res != '':
                     return 'exist'
             return list
         except Exception as e:
             print(e)
     
-    async def user_passwd_gen(self,multi_,exdate_,count_):
+    async def user_passwd_gen(self,multi_,exdate_,count_,server):
         list=[]
         try:
             for single in range(0,count_):
@@ -227,9 +206,13 @@ class MultiOps:
                     print("Duplicate key value")
                     return 'exist'
                 command=f"useradd {username} --shell /usr/sbin/nologin ; echo {username}:{passwdgen} | chpasswd"
-                res = self.__ssh_main(self,command)
+                res = self.__ssh_main(command,server)
                 if res != '':
                     return 'exist'
             return list
         except Exception as e:
             print(e)
+
+
+    
+

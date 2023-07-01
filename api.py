@@ -20,11 +20,12 @@ from security.main import (authenticate_user,
 from security.main  import ACCESS_TOKEN_EXPIRE_MINUTES
 from ops.passw import passgen
 from ops.main import sshtnl
+from ops.multi import MultiOps
 from fastapi.middleware.cors import CORSMiddleware
 app = FastAPI()
 mg = dbinsert()
 obj=sshtnl()
-
+remote = MultiOps()
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -77,11 +78,27 @@ def user_create(username:str,
     except:
         return False
 
+@app.get("/add-server")
+async def add_server(ip_address:str,
+                port:int,
+                user:str,
+                password:str,
+                current_user: User = Depends(get_current_active_user)):
+    try:
+        await mg.add_server(ip_address,port,user,password)
+        return True
+    except:
+        return False
 
 @app.get("/active-user")
-def active_user_(current_user: User = Depends(get_current_active_user)):
-    res=obj.active_user()
-    return res
+def active_user_(server:str | None = '',current_user: User = Depends(get_current_active_user)):
+    if server == 'localhost':
+        res = obj.active_user()
+        return res
+    else:
+        res = remote.all_active_users()
+        return res
+
 
 @app.get("/add-user")
 async def add_user_(username:str,
@@ -110,39 +127,56 @@ async def add_user_(username:str,
 
 
 @app.get("/delete-user")
-def delete_user_(username:str,current_user: User = Depends(get_current_active_user)):
+def delete_user_(username:str,server:str,current_user: User = Depends(get_current_active_user)):
     try:
-        obj.del_user(username)
-        return True
+        if server == 'localhost':
+            obj.del_user(username)
+            return True
+        else:
+            remote.del_user(server,username)
+            return True
     except:
         return False
 
 @app.get("/change-passwd-user")
-def change_passwd_user_(mode:str,username:str,passwd:str | None = '',current_user: User = Depends(get_current_active_user)):
+def change_passwd_user_(mode:str,username:str,server:str,passwd:str | None = '',current_user: User = Depends(get_current_active_user)):
     try:
-        if mode == 'admin':
-            obj.chng_passwd(username,passwd)
-            return True
-        elif mode == 'users':
+        if server == 'localhost':
+            if mode == 'admin':
+                obj.chng_passwd(username,passwd)
+                return True
+            elif mode == 'users':
+                passwdgen=passgen()
+                obj.chng_passwd(username,passwdgen)
+                return {'username':username , 'password':passwdgen}
+        else:
             passwdgen=passgen()
-            obj.chng_passwd(username,passwdgen)
+            remote.chng_passwd(server,username,passwdgen)
             return {'username':username , 'password':passwdgen}
     except:
         return False
-
+    
 @app.get("/lock-user")
-def lock_user_(username:str,current_user: User = Depends(get_current_active_user)):
+def lock_user_(username:str,server:str,current_user: User = Depends(get_current_active_user)):
     try:
-        obj.lockuser(username)
-        return True
+        if server == 'localhost':
+            obj.lockuser(username)
+            return True
+        else:
+            remote.lockuser(username,server)
+            return True
     except:
         return False
 
 @app.get("/unlock-user")
-def unlock_user_(username:str,current_user: User = Depends(get_current_active_user)):
+def unlock_user_(username:str,server:str,current_user: User = Depends(get_current_active_user)):
     try:
-        obj.unlockuser(username)
-        return True
+        if server == 'localhost':
+            obj.unlockuser(username)
+            return True
+        else:
+            remote.unlockuser(username,server)
+            return True
     except:
         return False
 
@@ -175,6 +209,7 @@ def get_users_(username:str| None = '',
                     passwd=dict['passwd']
                     status=dict['status']
                     exdate=dict['exdate']
+                    server=dict['server']
                     try:
                         telegram_id=dict['telegram_id']
                         phone=dict['phone']
@@ -201,30 +236,42 @@ def get_users_(username:str| None = '',
                                 'desc':desc,
                                 'passwd':passwd,
                                 'status':status,
+                                'server':server,
                                 }) 
 
 @app.get("/kill-user")
-def kill_user_(username:str,current_user: User = Depends(get_current_active_user)):
+def kill_user_(username:str,server:str,current_user: User = Depends(get_current_active_user)):
     try:
-        obj.killall(username)
-        return True
+        if server == 'localhost':
+            obj.killall(username)
+            return True
+        else:
+            remote.killall(username,server)
+            return True
     except:
         return False
 
 @app.get("/resource-usage")
-def resource_usage(current_user: User = Depends(get_current_active_user)):
+def resource_usage(server:str,current_user: User = Depends(get_current_active_user)):
     try:
-        res = obj.res_usage()
-        net = obj.network_usage()
-        return res,net
+        if server == 'localhost':
+            res = obj.res_usage()
+            net = obj.network_usage()
+            return res,net
+        else:
+            pass#####ToDo
     except:
         return False
 
 @app.post("/user-gen")
-async def user_gen(multi:int,exdate:str,count:int,current_user: User = Depends(get_current_active_user)):
+async def user_gen(multi:int,exdate:str,count:int,server:str,current_user: User = Depends(get_current_active_user)):
     try:
-        res = await obj.user_passwd_gen(multi,exdate,count)
-        return res
+        if server == 'localhost':
+            res = await obj.user_passwd_gen(multi,exdate,count)
+            return res
+        else:
+            res = remote.user_passwd_gen(multi,exdate,count,server)
+            return res
     except:
         return False
 

@@ -19,3 +19,11 @@ class User(Document):
     class Settings:
         name = "user"
 
+class Server(Document):
+    host:str
+    port:int
+    username:str
+    passwd:str
+    status:str
+    class Settings:
+        name = "server"

@@ -8,11 +8,11 @@ from json import load
 from ops.passw import passgen
 from names_generator import generate_name
 from pymongo.errors import DuplicateKeyError
-
+from .multi import MultiOps
 class sshtnl:
     def __init__(self):
         self.mg = dbinsert()
-
+        self.multi = MultiOps()
     def get_user_tun(self,user):
         try:
             string="ps aux | grep sshd"
@@ -30,7 +30,7 @@ class sshtnl:
             result = subprocess.getoutput(command)
             reg = re.findall('sshd: ([aA-zZ][^\s]*)\n',result)
             for strip in reg:
-                if strip != 'root@notty' and strip != 'root':
+                if strip != 'root@notty' and strip != 'root' and strip != '[accepted]':
                     list.append(strip)
             return list
         except:
@@ -83,13 +83,16 @@ class sshtnl:
                 # Handle duplicate key error
                 print("Duplicate key value")
                 return 'exist'
-                
-            command=f"useradd {username_} --shell /usr/sbin/nologin ; echo {username_}:{passwdgen} | chpasswd"
-            res =subprocess.getoutput(command)
-            reres = re.findall('exists',res)
-            if reres == ['exists']:
-                print(reres)
-                return 'exist'
+            if server == 'localhost':
+                command=f"useradd {username_} --shell /usr/sbin/nologin ; echo {username_}:{passwdgen} | chpasswd"
+                res =subprocess.getoutput(command)
+                reres = re.findall('exists',res)
+                if reres == ['exists']:
+                    print(reres)
+                    return 'exist'
+            else:
+                self.multi.add_user(server,passwdgen,username_)
+
 
 
     def chng_passwd(self,user,passwd):

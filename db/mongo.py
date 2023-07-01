@@ -27,7 +27,7 @@ class dbinsert:
         self.user.create_index("user", unique=True)
         self.kill = self.mydb['killer']
         self.api = self.mydb['api']
-
+        self.server = self.mydb['server']
 
     def select_all_user(self):
         list = []
@@ -44,6 +44,7 @@ class dbinsert:
                 passwd=dict['passwd']
                 status=dict['status']
                 exdate=dict['exdate']
+                server=dict['server']
                 try:
                     telegram_id=dict['telegram_id']
                     phone=dict['phone']
@@ -70,6 +71,7 @@ class dbinsert:
                             'desc':desc,
                             'passwd':passwd,
                             'status':status,
+                            'server':server,
                             }) 
             except:
                 pass
@@ -173,9 +175,57 @@ class dbinsert:
             list.append(collect)
         return list
 
+    def select_servers(self):
+        list = []
+        for dict in self.server.find():
+            host=dict['host']
+            port=dict['port']
+            username=dict['username']
+            passwd=dict['passwd']
+            status=dict['status']
+            if status == 'enable':
+                js={
+                    'host':host,
+                    'port':port,
+                    'username':username,
+                    'passwd':passwd,
+                    'status':status,
+                    }
+                list.append(js)
+        return list
+    
+    def select_specific_servers(self,server):
+        list = []
+        for dict in self.server.find():
+            host=dict['host']
+            port=dict['port']
+            username=dict['username']
+            passwd=dict['passwd']
+            status=dict['status']
+            if host == server:
+                js={
+                    'host':host,
+                    'port':port,
+                    'username':username,
+                    'passwd':passwd,
+                    'status':status,
+                    }
+                list.append(js)
+        return list
+
+    
     async def init_db(self):
         client = motor.motor_asyncio.AsyncIOMotorClient(self.mongo_uri)
-        await init_beanie(database=client['dbuser'], document_models=[User])
+        await init_beanie(database=client['dbuser'], document_models=[User,Server])
+    
 
-
+    async def add_server(self,hostname,portnum,user,password):
+        server = Server(
+                host=hostname,
+                port=portnum,
+                username=user,
+                passwd=password,
+                status='enable',
+        )
+        await server.insert() 
     
