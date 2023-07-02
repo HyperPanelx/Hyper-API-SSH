@@ -44,7 +44,7 @@ class dbinsert:
                 passwd=dict['passwd']
                 status=dict['status']
                 exdate=dict['exdate']
-                server=dict['server']
+                
                 try:
                     telegram_id=dict['telegram_id']
                     phone=dict['phone']
@@ -52,6 +52,7 @@ class dbinsert:
                     referral=dict['referral']
                     traffic=dict['traffic']
                     desc=dict['desc']
+                    server=dict['server']
                 except:
                     telegram_id=''
                     phone=''
@@ -59,6 +60,7 @@ class dbinsert:
                     referral=''
                     traffic=''
                     desc=''
+                    server=''
                
                 list.append({'user':user,
                             'multi':multi,

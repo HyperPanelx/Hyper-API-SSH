@@ -218,7 +218,7 @@ def get_users_(username:str| None = '',
                     passwd=dict['passwd']
                     status=dict['status']
                     exdate=dict['exdate']
-                    server=dict['server']
+                    
                     try:
                         telegram_id=dict['telegram_id']
                         phone=dict['phone']
@@ -226,6 +226,7 @@ def get_users_(username:str| None = '',
                         referral=dict['referral']
                         traffic=dict['traffic']
                         desc=dict['desc']
+                        server=dict['server']
                     except:
                         telegram_id=''
                         phone=''
@@ -233,6 +234,7 @@ def get_users_(username:str| None = '',
                         referral=''
                         traffic=''
                         desc=''
+                        server=''
                     
                     return({'user':user,
                                 'multi':multi,
