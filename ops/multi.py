@@ -49,14 +49,18 @@ class MultiOps:
         except:
             False
 
-    def all_active_users(self):
-        list=[]
-        for dict in self.mg.select_servers():
-            ipaddress=dict['host']
-            username=dict['username']
-            res=self.active_user(ipaddress,username)
-            list.append({'ip-address':ipaddress,'users':res})
-        return list
+    def all_active_users(self,mode):
+        if mode == 'all':
+            list=[]
+            for dict in self.mg.select_servers():
+                ipaddress=dict['host']
+                username=dict['username']
+                res=self.active_user(ipaddress,username)
+                list.append({'ip-address':ipaddress,'users':res})
+            return list
+        else:
+            res=self.active_user(mode,username)
+            return({'ip-address':mode,'users':res})
     
 
     def active_user(self,server,username):

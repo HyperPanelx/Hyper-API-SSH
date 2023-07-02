@@ -99,15 +99,13 @@ async def list_servers(current_user: User = Depends(get_current_active_user)):
         return False
 
 @app.get("/active-user")
-def active_user_(server:str | None = '',current_user: User = Depends(get_current_active_user)):
+def active_user_(server:str,current_user: User = Depends(get_current_active_user)):
     if server == 'localhost':
-        res = obj.active_user()
-        return res
-    else:
         local = obj.active_user()
-        res = remote.all_active_users()
-        return local,res
-
+        return local
+    else:
+        res = remote.all_active_users(server)
+        return res
 
 @app.get("/add-user")
 async def add_user_(username:str,
