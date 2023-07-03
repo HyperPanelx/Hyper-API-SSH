@@ -54,23 +54,24 @@ class MultiOps:
             list=[]
             for dict in self.mg.select_servers():
                 ipaddress=dict['host']
-                username=dict['username']
-                res=self.active_user(ipaddress,username)
+                # username=dict['username']
+                res=self.active_user(ipaddress)
+                
                 list.append({'ip-address':ipaddress,'users':res})
             return list
         else:
-            res=self.active_user(mode,username)
+            res=self.active_user(mode)
             return({'ip-address':mode,'users':res})
     
 
-    def active_user(self,server,username):
+    def active_user(self,server):
         try:
             list=[]
             command='ps aux | grep sshd'
             result = self.__ssh_main(command,server)
             reg = re.findall('sshd: ([aA-zZ][^\s]*)\n',result)
             for strip in reg:
-                if strip != 'root@notty' and strip != 'root' and strip != '[accepted]' and strip != f'{username}@notty': 
+                if strip != 'root@notty' and strip != 'root' and strip != '[accepted]': 
                     list.append(strip)
             return list
         except Exception:
@@ -181,7 +182,7 @@ class MultiOps:
         except Exception as e:
             print(e)
     
-    async def user_passwd_gen(self,multi_,exdate_,count_,server):
+    async def user_passwd_gen(self,multi_,exdate_,count_,server_):
         list=[]
         try:
             for single in range(0,count_):
@@ -200,16 +201,17 @@ class MultiOps:
                             desc='',
                             passwd=passwdgen,
                             status='enable',
+                            server=server_,
                     )
                     await validation.insert() 
-                    self.mg.insert_count_kill(username,'0')
+                    self.mg.insert_count_kill(username,'0',server_)
                     list.append({'user':username,'passwd':passwdgen})
                 except DuplicateKeyError:
                     # Handle duplicate key error
                     print("Duplicate key value")
                     return 'exist'
                 command=f"useradd {username} --shell /usr/sbin/nologin ; echo {username}:{passwdgen} | chpasswd"
-                res = self.__ssh_main(command,server)
+                res = self.__ssh_main(command,server_)
                 if res != '':
                     return 'exist'
             return list

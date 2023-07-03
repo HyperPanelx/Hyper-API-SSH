@@ -268,7 +268,7 @@ async def user_gen(multi:int,exdate:str,count:int,server:str,current_user: User 
             res = await obj.user_passwd_gen(multi,exdate,count)
             return res
         else:
-            res = remote.user_passwd_gen(multi,exdate,count,server)
+            res = await remote.user_passwd_gen(multi,exdate,count,server)
             return res
     except:
         return False
