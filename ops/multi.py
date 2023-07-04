@@ -52,11 +52,10 @@ class MultiOps:
     def all_active_users(self,mode):
         if mode == 'all':
             list=[]
-            for dict in self.mg.select_servers():
+            for dict in self.mg.select_servers() :
                 ipaddress=dict['host']
                 # username=dict['username']
                 res=self.active_user(ipaddress)
-                
                 list.append({'ip-address':ipaddress,'users':res})
             return list
         else:
