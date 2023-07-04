@@ -227,6 +227,7 @@ def get_users_(username:str| None = '',
                         traffic=dict['traffic']
                         desc=dict['desc']
                         server=dict['server']
+                        ordered_by=dict['ordered_by']
                     except:
                         telegram_id=''
                         phone=''
@@ -235,6 +236,7 @@ def get_users_(username:str| None = '',
                         traffic=''
                         desc=''
                         server=''
+                        ordered_by=''
                     
                     return({'user':user,
                                 'multi':multi,
@@ -248,6 +250,7 @@ def get_users_(username:str| None = '',
                                 'passwd':passwd,
                                 'status':status,
                                 'server':server,
+                                'ordered_by':ordered_by,
                                 }) 
 
 @app.get("/kill-user")

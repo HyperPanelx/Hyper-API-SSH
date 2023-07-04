@@ -53,6 +53,7 @@ class dbinsert:
                     traffic=dict['traffic']
                     desc=dict['desc']
                     server=dict['server']
+                    ordered_by=dict['server']
                 except:
                     telegram_id=''
                     phone=''
@@ -61,6 +62,7 @@ class dbinsert:
                     traffic=''
                     desc=''
                     server=''
+                    ordered_by=''
                
                 list.append({'user':user,
                             'multi':multi,
@@ -74,6 +76,7 @@ class dbinsert:
                             'passwd':passwd,
                             'status':status,
                             'server':server,
+                            'ordered_by':ordered_by,
                             }) 
             except:
                 pass
