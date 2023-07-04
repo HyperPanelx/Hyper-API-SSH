@@ -53,7 +53,7 @@ class dbinsert:
                     traffic=dict['traffic']
                     desc=dict['desc']
                     server=dict['server']
-                    ordered_by=dict['server']
+                    ordered_by=dict['ordered_by']
                 except:
                     telegram_id=''
                     phone=''
@@ -81,7 +81,53 @@ class dbinsert:
             except:
                 pass
         return list 
-            
+    
+    def specific_user(self,username):
+        res = self.select_users()
+        for dict in res:
+            user = dict['user']
+            if user == username:
+                    user=dict['user']
+                    multi=dict['multi']
+                    passwd=dict['passwd']
+                    status=dict['status']
+                    exdate=dict['exdate']      
+                    try:
+                        telegram_id=dict['telegram_id']
+                        phone=dict['phone']
+                        email=dict['email']
+                        referral=dict['referral']
+                        traffic=dict['traffic']
+                        desc=dict['desc']
+                        server=dict['server']
+                        ordered_by=dict['ordered_by']
+                    except:
+                        telegram_id=''
+                        phone=''
+                        email=''
+                        referral=''
+                        traffic=''
+                        desc=''
+                        server=''
+                        ordered_by=''
+                    
+                    return({'user':user,
+                                'multi':multi,
+                                'exdate':exdate,
+                                'telegram_id':telegram_id,
+                                'phone':phone,
+                                'email':email,
+                                'referral':referral,
+                                'traffic':traffic,
+                                'desc':desc,
+                                'passwd':passwd,
+                                'status':status,
+                                'server':server,
+                                'ordered_by':ordered_by,
+                                }) 
+
+
+
     def user_chng_passwd(self,user,passwd):
         self.user.update_one({"user": user}, {"$set": {"passwd": passwd}})
 

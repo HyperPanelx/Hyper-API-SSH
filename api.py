@@ -209,50 +209,9 @@ def get_users_(username:str| None = '',
         except:
             return False
     else:
-        res = mg.select_users()
-        for dict in res:
-            user = dict['user']
-            if user == username:
-                    user=dict['user']
-                    multi=dict['multi']
-                    passwd=dict['passwd']
-                    status=dict['status']
-                    exdate=dict['exdate']
-                    
-                    try:
-                        telegram_id=dict['telegram_id']
-                        phone=dict['phone']
-                        email=dict['email']
-                        referral=dict['referral']
-                        traffic=dict['traffic']
-                        desc=dict['desc']
-                        server=dict['server']
-                        ordered_by=dict['ordered_by']
-                    except:
-                        telegram_id=''
-                        phone=''
-                        email=''
-                        referral=''
-                        traffic=''
-                        desc=''
-                        server=''
-                        ordered_by=''
-                    
-                    return({'user':user,
-                                'multi':multi,
-                                'exdate':exdate,
-                                'telegram_id':telegram_id,
-                                'phone':phone,
-                                'email':email,
-                                'referral':referral,
-                                'traffic':traffic,
-                                'desc':desc,
-                                'passwd':passwd,
-                                'status':status,
-                                'server':server,
-                                'ordered_by':ordered_by,
-                                }) 
-
+        res = mg.specific_user(username)
+        return res
+    
 @app.get("/kill-user")
 def kill_user_(username:str,server:str,current_user: User = Depends(get_current_active_user)):
     try:
