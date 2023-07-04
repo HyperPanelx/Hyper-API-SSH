@@ -1,6 +1,9 @@
 from security.main import hash_pass,add_user
+import sys
 
-username = input('Set username Panel: ')
-passwd = input('Set Password Panel: ')
+args = sys.argv
+username = args[1]
+passwd = args[2]
+
 hashpass = hash_pass(passwd)
 add_user(username,hashpass)
