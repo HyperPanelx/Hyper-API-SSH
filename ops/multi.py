@@ -117,33 +117,20 @@ class MultiOps:
         self.mg.del_user(user)
 
 
-    def res_usage(self):
-        cpu = psutil.cpu_percent(4)
-        mem = psutil.virtual_memory()[2]
-        hdd = psutil.disk_usage('/')[3]
-        return {'cpu':cpu,'mem':mem,'hdd':hdd}
+    def res_usage(self,server):
+        cpu = "top -bn1 | grep 'Cpu(s)' | awk '{print $2 + $4}'"
+        memory_percent="free | awk '/Mem/ {print ($3/$2) * 100}'"
+        hdd = "df -h --output=pcent / | awk 'NR==2{print $1}'"
+        list = []
+        for command in [cpu,memory_percent,hdd]:
+            res = self.__ssh_main(command,server)
+            list.append(res)
+        cpu = list[0].strip()
+        mem = list[1].strip()
+        hdd = list[2].strip().replace('%','')
+        js={'cpu':float(cpu),'mem':float(mem),'hdd':float(hdd)}
+        return js
 
-    def get_size(self,bytes):
-        """
-        Returns size of bytes in a nice format
-        """
-        for unit in ['', 'K', 'M', 'G', 'T', 'P']:
-            if bytes < 1024:
-                return f"{bytes:.2f}{unit}B"
-            bytes /= 1024
-
-    def network_usage(self):
-        UPDATE_DELAY = 1 
-        io = psutil.net_io_counters()
-        bytes_sent, bytes_recv = io.bytes_sent, io.bytes_recv
-        while True:
-            time.sleep(UPDATE_DELAY)
-            io_2 = psutil.net_io_counters()
-            us, ds = io_2.bytes_sent - bytes_sent, io_2.bytes_recv - bytes_recv
-            return {'Upload': self.get_size(io_2.bytes_sent)   ,
-                'Download': self.get_size(io_2.bytes_recv)  ,
-                'Upload Speed': self.get_size(us / UPDATE_DELAY),
-                'Download Speed': self.get_size(ds / UPDATE_DELAY)}
     
     async def bulk(self,jsname):
         list=[]
@@ -182,7 +169,7 @@ class MultiOps:
         except Exception as e:
             print(e)
     
-    async def user_passwd_gen(self,multi_,exdate_,count_,server_):
+    async def user_passwd_gen(self,multi_,exdate_,count_,server_,ordered_by):
         list=[]
         try:
             for single in range(0,count_):
@@ -202,6 +189,7 @@ class MultiOps:
                             passwd=passwdgen,
                             status='enable',
                             server=server_,
+                            ordered_by=ordered_by,
                     )
                     await validation.insert() 
                     self.mg.insert_count_kill(username,'0',server_)

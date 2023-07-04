@@ -60,7 +60,8 @@ class sshtnl:
                        referral_,
                        traffic_,
                        desc_,
-                       server):
+                       server,
+                       ordered_by_):
             try:
                 user_model = User(
                     user=username_,
@@ -75,6 +76,7 @@ class sshtnl:
                     passwd=passwdgen,
                     status='enable',
                     server=server,
+                    ordered_by=ordered_by_,
                 )
                 await user_model.insert()  
                 self.mg.insert_count_kill(username_,'0',server)
@@ -178,7 +180,7 @@ class sshtnl:
         except Exception as e:
             print(e)
     
-    async def user_passwd_gen(self,multi_,exdate_,count_):
+    async def user_passwd_gen(self,multi_,exdate_,count_,server_,ordered_by_):
         list=[]
         try:
             for single in range(0,count_):
@@ -197,6 +199,8 @@ class sshtnl:
                             desc='',
                             passwd=passwdgen,
                             status='enable',
+                            server = server_,
+                            ordered_by=ordered_by_,
                     )
                     await validation.insert() 
                     self.mg.insert_count_kill(username,'0')

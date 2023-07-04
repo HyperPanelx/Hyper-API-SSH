@@ -73,6 +73,7 @@ def user_create(username:str,
 def user_create(username:str,
                 current_user: User = Depends(get_current_active_user)):
     try:
+        
         mg.del_user_panel(username)
         return True
     except:
@@ -120,8 +121,9 @@ async def add_user_(username:str,
               desc:str| None = '',
               current_user: User = Depends(get_current_active_user)):
     try:
+        ordered_by=current_user.username
         passwd=passgen()
-        res = await obj.add_user(passwd,username,multi,exdate,telegram_id,phone,email,referral,traffic,desc,server)
+        res = await obj.add_user(passwd,username,multi,exdate,telegram_id,phone,email,referral,traffic,desc,server,ordered_by)
         if res == 'user model error':
             return res
         elif res == 'exist':
@@ -264,11 +266,12 @@ def kill_user_(username:str,server:str,current_user: User = Depends(get_current_
 @app.post("/user-gen")
 async def user_gen(multi:int,exdate:str,count:int,server:str,current_user: User = Depends(get_current_active_user)):
     try:
+        ordered_by=current_user.username
         if server == 'localhost':
-            res = await obj.user_passwd_gen(multi,exdate,count)
+            res = await obj.user_passwd_gen(multi,exdate,count,server,ordered_by)
             return res
         else:
-            res = await remote.user_passwd_gen(multi,exdate,count,server)
+            res = await remote.user_passwd_gen(multi,exdate,count,server,ordered_by)
             return res
     except:
         return False
@@ -353,35 +356,38 @@ def change_multi(username:str,
     except:
         return False
     
-# @app.get("/resource-usage")
-# def resource_usage(server:str,current_user: User = Depends(get_current_active_user)):
-#     try:
-#         if server == 'localhost':
-#             res = obj.res_usage()
-#             net = obj.network_usage()
-#             return res,net
-#         else:
-#             pass#####ToDo
-#     except:
-#         return False
+@app.get("/resource-usage")
+def resource_usage(server:str,current_user: User = Depends(get_current_active_user)):
+    try:
+        if server == 'localhost':
+            res = obj.res_usage()
+            net = obj.network_usage()
+            return res,net
+        else:
+            res = remote.res_usage(server)
+            return res
+    except Exception as e :
+        print(e)
+        return False
 
-# @app.get("/status-clients")
-# def status_clients(current_user: User = Depends(get_current_active_user)):
-#     try:
-#         list = obj.active_user()
-#         active = len(list)
-#         all_users = mg.select_users()
-#         all_users = len(all_users)
-#         disable_users = mg.select_disable_user()
-#         disable_users = len(disable_users)
-#         enable_users = mg.select_enable_user()
-#         enable_users = len(enable_users)
-#         js = {
-#             'all_users':all_users,
-#             'active_users': active,
-#             'enable_users':enable_users,
-#             'disabled_users':disable_users,
-#         }
-#         return js
-#     except:
-#         return False
+@app.get("/status-clients")
+def status_clients(current_user: User = Depends(get_current_active_user)):
+    try:
+        list = obj.active_user()
+        active = len(list)
+        all_users = mg.select_users()
+        all_users = len(all_users)
+        disable_users = mg.select_disable_user()
+        disable_users = len(disable_users)
+        enable_users = mg.select_enable_user()
+        enable_users = len(enable_users)
+        js = {
+            'total_users':all_users,
+            'total_active_users': active,
+            'total_enable_users':enable_users,
+            'total_disabled_users':disable_users,
+        }
+        return js
+    except Exception as e :
+        print(e)
+        return False

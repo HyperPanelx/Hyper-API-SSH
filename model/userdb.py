@@ -16,6 +16,7 @@ class User(Document):
     passwd:str
     status:Literal['enable', 'disable']
     server:str
+    ordered_by:str
     class Settings:
         name = "user"
 
