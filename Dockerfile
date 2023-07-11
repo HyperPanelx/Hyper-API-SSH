@@ -18,4 +18,4 @@ RUN apt update
 RUN apt install openssh-server tmux -y
 # RUN service ssh start
 ENTRYPOINT ["sh", "/docker-entrypoint.sh"]
-CMD ["sh", "-c","sed -i s/password/$ENVMONGOPASS/g /db/.env ; python3 hash.py $ENVUSER $ENVPASS ; tmux new-session -d -s 'kill' 'python3 killuser.py';uvicorn api:app --host 0.0.0.0 --port ${ENVPORT} --workers 3"]
+CMD ["sh", "-c","sed -i s/password/$ENVMONGOPASS/g /db/.env ; python3 hash.py $ENVUSER $ENVPASS ; tmux new-session -d -s 'kill' 'python3 killuser.py';tmux new-session -d -s 'exdate' 'python3 exdate.py';uvicorn api:app --host 0.0.0.0 --port ${ENVPORT} --workers 3"]
