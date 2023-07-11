@@ -13,6 +13,29 @@ class sshtnl:
     def __init__(self):
         self.mg = dbinsert()
         self.multi = MultiOps()
+
+    def get_user_tun_all(self,user):
+        try:
+            list=[]
+            for dict in self.mg.select_servers() :
+                ipaddress=dict['host']
+                command="ps aux | grep sshd"
+                try:
+                    result=self.multi.ssh_main__(command,ipaddress)
+                    est = re.findall(f'sshd: ({user}[^\w]*)\n',result)
+                    lenuser=(len(est))
+                except:
+                    pass
+                if lenuser > 0:
+                    list.append({'username':user,'lenuser':lenuser,'ipaddress':ipaddress})
+                lenuser = 0
+            result=self.get_user_tun(user)
+            if result != 0:
+                list.append({'username':user,'lenuser':result,'ipaddress':'localhost',})
+            return list
+        except:
+            False
+
     def get_user_tun(self,user):
         try:
             string="ps aux | grep sshd"
@@ -20,9 +43,9 @@ class sshtnl:
             est = re.findall(f'sshd: ({user}[^\w]*)\n',result)
             lenuser=(len(est))
             return lenuser
-            
         except:
             False
+
     def active_user(self):
         try:
             list=[]

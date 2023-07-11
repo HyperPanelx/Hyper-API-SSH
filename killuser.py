@@ -13,33 +13,32 @@ def kill_user(multi:int):
             print(f'multi = {multiuser} | while = {count}')
             alluserOne=mg.select_user_multi_en(multiuser)
             for username in alluserOne: 
-                userlun = obj.get_user_tun(username)
-                if userlun > multiuser: # if user tunnel  more than one
-                    count_kill=mg.select_count_kill(username)
-                    count_kill_update = count_kill + 1
-                    mg.update_count_kill(username,count_kill_update)
-                    obj.killall(username)
-                    try:
-                        servers=mg.list_servers()
-                        for server in servers:
-                            ipaddress=server['host']
+                try:
+                    usertun = obj.get_user_tun_all(username)
+                    for dict in usertun:
+                        username = dict['username']
+                        ipaddress = dict['ipaddress']
+                        usertun = dict['lenuser']
+                    if usertun > multiuser:
+                        count_kill=mg.select_count_kill(username)
+                        count_kill_update = count_kill + 1
+                        mg.update_count_kill(username,count_kill_update)
+                        if ipaddress == 'localhost':
+                            obj.killall(username)
+                            print(f'kill {username}')
+                        else:
                             remote.killall(username,ipaddress)
-                            print(f'kill {ipaddress}')
-                    except:
-                        pass
-                    print('kill '+username)
-                    if count_kill >= 4:
-                        obj.lockuser(username)
-                        try:
-                            servers=mg.list_servers()
-                            for server in servers:
-                                ipaddress=server['host']
+                            print(f'kill {username}')
+                        if count_kill >= 4:
+                            if ipaddress == 'localhost':
+                                obj.lockuser(username)
+                                print('locked '+username)
+                            else:
                                 remote.lockuser(username,ipaddress)
-                                print(f'lock {ipaddress}')
-                        except:
-                            pass
-                        print('locked '+username)
-                        mg.update_count_kill(username,0)
-                        mg.update_status_user(username,'disable')
-        time.sleep(120)
+                                print(f'lock {username}')
+                            mg.update_count_kill(username,0)
+                            mg.update_status_user(username,'disable')
+                except:
+                    pass
+        time.sleep(60)
 kill_user(2)

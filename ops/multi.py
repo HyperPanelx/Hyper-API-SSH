@@ -14,7 +14,7 @@ class MultiOps:
     def __init__(self):
         self.mg = dbinsert()
     
-    def __ssh_main(self,command,server):
+    def ssh_main__(self,command,server):
         res = self.mg.select_specific_servers(server)
         for dict in res:
             ipaddress=dict['host']
@@ -29,23 +29,14 @@ class MultiOps:
                             username,
                             passwd,
                             allow_agent=False,
-                            look_for_keys=False
+                            look_for_keys=False,
+                            timeout=2 
                             )
                 stdin, stdout, stderr = ssh.exec_command(command)
                 lines = stdout.read()
                 out=lines.decode()
                 ssh.close()
                 return out
-        except:
-            False
-
-    def get_user_tun(self,user):
-        try:
-            command="ps aux | grep sshd"
-            result=self.__ssh_main(command)
-            est = re.findall(f'sshd: ({user}[^\w]*)\n',result)
-            lenuser=(len(est))
-            return lenuser
         except:
             False
 
@@ -67,7 +58,7 @@ class MultiOps:
         try:
             list=[]
             command='ps aux | grep sshd'
-            result = self.__ssh_main(command,server)
+            result = self.ssh_main__(command,server)
             reg = re.findall('sshd: ([aA-zZ][^\s]*)\n',result)
             for strip in reg:
                 if strip != 'root@notty' and strip != 'root' and strip != '[accepted]': 
@@ -79,21 +70,21 @@ class MultiOps:
 
     def killall(self,user,server):            
         command=f"killall -u {user}"
-        self.__ssh_main(command,server)
+        self.ssh_main__(command,server)
 
     def lockuser(self,user,server):
         command=f'usermod -L {user}'
-        self.__ssh_main(command,server)
+        self.ssh_main__(command,server)
         self.mg.update_status_user(user,'disable')
         
     def unlockuser(self,user,server):
         command=f'usermod -U {user}'
-        self.__ssh_main(command,server)
+        self.ssh_main__(command,server)
         self.mg.update_status_user(user,'enable')
 
     async def add_user(self,server,passwdgen,username_):
             command=f"useradd {username_} --shell /usr/sbin/nologin ; echo {username_}:{passwdgen} | chpasswd"
-            res = self.__ssh_main(command,server)
+            res = self.ssh_main__(command,server)
             reres = re.findall('exists',res)
             if reres == ['exists']:
                 print(reres)
@@ -103,7 +94,7 @@ class MultiOps:
 
     def chng_passwd(self,server,user,passwd):
         command=f'echo "{passwd}" | passwd --stdin {user}'
-        self.__ssh_main(command,server)
+        self.ssh_main__(command,server)
         try:
             self.mg.user_chng_passwd(user,passwd)
         except:
@@ -112,7 +103,7 @@ class MultiOps:
 
     def del_user(self,server,user):
         command=f'userdel {user}'
-        result=self.__ssh_main(command,server)
+        result=self.ssh_main__(command,server)
         self.mg.del_user(user)
 
 
@@ -122,7 +113,7 @@ class MultiOps:
         hdd = "df -h --output=pcent / | awk 'NR==2{print $1}'"
         list = []
         for command in [cpu,memory_percent,hdd]:
-            res = self.__ssh_main(command,server)
+            res = self.ssh_main__(command,server)
             list.append(res)
         cpu = list[0].strip()
         mem = list[1].strip()
@@ -161,7 +152,7 @@ class MultiOps:
                     print("Duplicate key value")
                     return 'exist'
                 command=f"useradd {username} --shell /usr/sbin/nologin"
-                res = self.__ssh_main(command)
+                res = self.ssh_main__(command)
                 if res != '':
                     return 'exist'
             return list
@@ -198,7 +189,7 @@ class MultiOps:
                     print("Duplicate key value")
                     return 'exist'
                 command=f"useradd {username} --shell /usr/sbin/nologin ; echo {username}:{passwdgen} | chpasswd"
-                res = self.__ssh_main(command,server_)
+                res = self.ssh_main__(command,server_)
                 if res != '':
                     return 'exist'
             return list
