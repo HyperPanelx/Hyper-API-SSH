@@ -15,7 +15,7 @@ ENV ENVPORT=$PORT
 ARG MONGO
 ENV ENVMONGOPASS=$MONGO
 RUN apt update
-RUN apt install openssh-server -y
+RUN apt install openssh-server tmux -y
 # RUN service ssh start
 ENTRYPOINT ["sh", "/docker-entrypoint.sh"]
-CMD ["sh", "-c","sed -i s/password/$ENVMONGOPASS/g /db/.env ; python3 hash.py $ENVUSER $ENVPASS ; uvicorn api:app --host 0.0.0.0 --port ${ENVPORT} --workers 3"]
+CMD ["sh", "-c","sed -i s/password/$ENVMONGOPASS/g /db/.env ; python3 hash.py $ENVUSER $ENVPASS ; tmux new-session -d -s 'kill' 'python3 killuser.py';uvicorn api:app --host 0.0.0.0 --port ${ENVPORT} --workers 3"]

@@ -155,11 +155,9 @@ def change_passwd_user_(mode:str,username:str,server:str,passwd:str | None = '',
                 obj.chng_passwd(username,passwd)
                 return True
             elif mode == 'users':
-                # passwdgen=passgen()
                 obj.chng_passwd(username,passwd)
                 return {'username':username , 'password':passwd}
         else:
-            # passwdgen=passgen()
             remote.chng_passwd(server,username,passwd)
             return {'username':username , 'password':passwd}
     except:
