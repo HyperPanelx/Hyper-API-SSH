@@ -155,13 +155,13 @@ def change_passwd_user_(mode:str,username:str,server:str,passwd:str | None = '',
                 obj.chng_passwd(username,passwd)
                 return True
             elif mode == 'users':
-                passwdgen=passgen()
-                obj.chng_passwd(username,passwdgen)
-                return {'username':username , 'password':passwdgen}
+                # passwdgen=passgen()
+                obj.chng_passwd(username,passwd)
+                return {'username':username , 'password':passwd}
         else:
-            passwdgen=passgen()
-            remote.chng_passwd(server,username,passwdgen)
-            return {'username':username , 'password':passwdgen}
+            # passwdgen=passgen()
+            remote.chng_passwd(server,username,passwd)
+            return {'username':username , 'password':passwd}
     except:
         return False
     
@@ -353,3 +353,13 @@ def status_clients(current_user: User = Depends(get_current_active_user)):
     except Exception as e :
         print(e)
         return False
+
+@app.get("/notify")
+def notify():
+    return [
+   { 
+        "title":"test",
+        "content":"test",
+        "link":"test"
+    }
+    ]
