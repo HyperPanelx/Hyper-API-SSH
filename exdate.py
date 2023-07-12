@@ -13,8 +13,11 @@ def exdate(datet,user):
         main.lockuser(user)
     else:
         pass
-selc=mg.select_all_user()
-for dict in selc:
-    user=dict['user']
-    exdate_user=dict['exdate']
-    exdate(exdate_user,user)
+while(True):
+    selc=mg.select_all_user()
+    for dict in selc:
+        user=dict['user']
+        exdate_user=dict['exdate']
+        exdate(exdate_user,user)
+    time.sleep(86400)
+        
