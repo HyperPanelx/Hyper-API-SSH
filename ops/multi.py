@@ -21,7 +21,6 @@ class MultiOps:
             port=dict['port']
             username=dict['username']
             passwd=dict['passwd']
-        try:
             with paramiko.SSHClient() as ssh:
                 ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
                 ssh.connect(ipaddress,
@@ -37,8 +36,6 @@ class MultiOps:
                 out=lines.decode()
                 ssh.close()
                 return out
-        except:
-            False
 
     def all_active_users(self,mode):
         if mode == 'all':

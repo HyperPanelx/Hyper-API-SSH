@@ -143,7 +143,7 @@ async def user_gen(response: Response,
     try:
         ordered_by=current_user.username
         if server == 'localhost':
-            res = await obj.user_passwd_gen(multi,exdate,count,server,ordered_by)
+            res = await obj.user_passwd_gen(multi,exdate,count,server,ordered_by,server)
             response.status_code = 200
             return {"success":True,"message": "OK","data":res}
         else:

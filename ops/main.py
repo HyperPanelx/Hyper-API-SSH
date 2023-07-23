@@ -204,7 +204,7 @@ class sshtnl:
         except Exception as e:
             print(e)
     
-    async def user_passwd_gen(self,multi_,exdate_,count_,server_,ordered_by_):
+    async def user_passwd_gen(self,multi_,exdate_,count_,server_,ordered_by_,server):
         list=[]
         try:
             for single in range(0,count_):
@@ -227,7 +227,7 @@ class sshtnl:
                             ordered_by=ordered_by_,
                     )
                     await validation.insert() 
-                    self.mg.insert_count_kill(username,'0')
+                    self.mg.insert_count_kill(username,'0',server)
                     list.append({'user':username,'passwd':passwdgen})
                 except DuplicateKeyError:
                     # Handle duplicate key error
