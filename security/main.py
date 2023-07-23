@@ -29,6 +29,7 @@ class User(BaseModel):
     email: str | None = None
     full_name: str | None = None
     disabled: bool | None = None
+    role: int
 
 
 class UserInDB(User):
@@ -59,8 +60,8 @@ def get_user(username: str):
             user_dict['username']
             return UserInDB(**user_dict)
 
-def add_user(user,hashpass):
-    obj.user_mongo(user,hashpass)
+def add_user(user,hashpass,role):
+    obj.user_mongo(user,hashpass,role)
 
 def authenticate_user(username: str, password: str):
     user = get_user(username)
@@ -113,3 +114,7 @@ async def get_current_active_user(current_user: User = Depends(get_current_user)
         raise HTTPException(status_code=400, detail="Inactive user")
     return current_user
 
+async def has_permission(user = Depends(get_current_user)):
+    if user.role != 0:
+        raise HTTPException(status_code=403, detail={"success":False,"message": "You don't have permission to access this resource","data":""})
+    return True

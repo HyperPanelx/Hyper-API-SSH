@@ -2,10 +2,10 @@ import re
 import time
 from db import dbinsert
 import subprocess
-from model.userdb import User
+from model.models import User
 import psutil
 from json import load
-from ops.passw import passgen
+from ops.passwd import passgen
 from names_generator import generate_name
 from pymongo.errors import DuplicateKeyError
 from .multi import MultiOps

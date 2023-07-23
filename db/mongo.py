@@ -10,7 +10,7 @@ from pymongo.errors import DuplicateKeyError
 from datetime import datetime
 import asyncio
 import urllib.parse
-from model.userdb import *
+from model.models import *
 import motor.motor_asyncio
 
 
@@ -181,11 +181,12 @@ class dbinsert:
         self.user.update_one({"user": user}, {"$set": {"traffic": traffic}})
         self.user.update_one({"user": user}, {"$set": {"server": server}})
 
-    def user_mongo(self,user,userhash):
+    def user_mongo(self,user,userhash,role):
         general = { user: {
         "username": user,
         "full_name": user,
         "hashed_password": userhash,
+        "role":role,
         }}
         self.api.insert_one(general)
 

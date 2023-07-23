@@ -1,10 +1,10 @@
 import paramiko
 from db import dbinsert
 import re
-from model.userdb import User
+from model.models import User
 import psutil
 from json import load
-from ops.passw import passgen
+from ops.passwd import passgen
 from names_generator import generate_name
 import time
 from pymongo.errors import DuplicateKeyError
@@ -90,8 +90,6 @@ class MultiOps:
                 print(reres)
                 return 'exist'
 
-
-
     def chng_passwd(self,server,user,passwd):
         command=f'echo "{passwd}" | passwd --stdin {user}'
         self.ssh_main__(command,server)
@@ -121,7 +119,7 @@ class MultiOps:
         js={'cpu':float(cpu),'mem':float(mem),'hdd':float(hdd)}
         return js
 
-    
+  
     async def bulk(self,jsname):
         list=[]
         with open('./uploads/'+jsname, 'r',encoding="utf-8") as json_File:

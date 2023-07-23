@@ -28,3 +28,8 @@ class Server(Document):
     status:str
     class Settings:
         name = "server"
+
+class Response(BaseModel):
+    success: bool
+    massage: str = ""
+    data: dict
