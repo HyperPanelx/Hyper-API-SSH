@@ -286,6 +286,6 @@ def active_user_(response: Response,
         response.status_code = 200
         return local
     else:
-        res = remote.all_active_users(server)
+        res = obj.all_active_users(server)
         response.status_code = 200
         return {"success":True,"message": "OK","data":res}

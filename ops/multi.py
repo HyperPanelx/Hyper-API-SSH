@@ -9,11 +9,9 @@ from names_generator import generate_name
 import time
 from pymongo.errors import DuplicateKeyError
 import traceback
-
 class MultiOps:
     def __init__(self):
         self.mg = dbinsert()
-    
     def ssh_main__(self,command,server):
         res = self.mg.select_specific_servers(server)
         for dict in res:
@@ -35,21 +33,7 @@ class MultiOps:
                 lines = stdout.read()
                 out=lines.decode()
                 ssh.close()
-                return out
-
-    def all_active_users(self,mode):
-        if mode == 'all':
-            list=[]
-            for dict in self.mg.select_servers() :
-                ipaddress=dict['host']
-                # username=dict['username']
-                res=self.active_user(ipaddress)
-                list.append({'ip-address':ipaddress,'users':res})
-            return list
-        else:
-            res=self.active_user(mode)
-            return({'ip-address':mode,'users':res})
-    
+                return out  
 
     def active_user(self,server):
         try:
@@ -58,7 +42,7 @@ class MultiOps:
             result = self.ssh_main__(command,server)
             reg = re.findall('sshd: ([aA-zZ][^\s]*)\n',result)
             for strip in reg:
-                if strip != 'root@notty' and strip != 'root' and strip != '[accepted]': 
+                if strip != 'root@notty' and strip != 'root' and strip != '[accepted]'and strip !='root@pts/0'and strip !="[net]": 
                     list.append(strip)
             return list
         except Exception:

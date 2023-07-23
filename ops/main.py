@@ -60,6 +60,23 @@ class sshtnl:
         except:
             False
 
+    def all_active_users(self,mode):
+        if mode == 'all':
+            list=[]
+            for dict in self.mg.select_servers() :
+                ipaddress=dict['host']
+                res=self.multi.active_user(ipaddress)
+                if res == False:
+                    ipaddress = 'Server is Down'
+                    res = ''
+                list.append({'ip-address':ipaddress,'users':res})
+            local=self.active_user()
+            list.append(local)
+            return list
+        else:
+            res=self.active_user(mode)
+            return({'ip-address':mode,'users':res})
+        
     def killall(self,user):            
         command=f"killall -u {user}"
         subprocess.getoutput(command)
