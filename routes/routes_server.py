@@ -14,7 +14,7 @@ mg = dbinsert()
 obj=sshtnl()
 router = APIRouter(tags=['Server'])
 
-@router.get("/server-add")
+@router.get("/server-add", dependencies=[Depends(has_permission)])
 async def add_server(ip_address:str,
                 port:int,
                 user:str,

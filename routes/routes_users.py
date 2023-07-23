@@ -46,7 +46,7 @@ async def add_user_(response: Response,
 
 
 
-@router.get("/user-delete")
+@router.get("/user-delete", dependencies=[Depends(has_permission)])
 def delete_user_(response: Response,username:str,server:str,current_user: User = Depends(get_current_active_user)):
     try:
         if server == 'localhost':
@@ -61,7 +61,7 @@ def delete_user_(response: Response,username:str,server:str,current_user: User =
         response.status_code = 404
         return {"success":False,"message": "faild","data":""}
 
-@router.get("/user-change-passwd")
+@router.get("/user-change-passwd", dependencies=[Depends(has_permission)])
 def change_passwd_user_(response: Response,
                         mode:str,
                         username:str,
