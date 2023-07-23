@@ -9,6 +9,7 @@ from ops.passwd import passgen
 from names_generator import generate_name
 from pymongo.errors import DuplicateKeyError
 from .multi import MultiOps
+import traceback
 class sshtnl:
     def __init__(self):
         self.mg = dbinsert()
@@ -45,7 +46,7 @@ class sshtnl:
             return lenuser
         except:
             False
-
+        
     def active_user(self):
         try:
             list=[]

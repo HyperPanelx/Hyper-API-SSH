@@ -259,7 +259,8 @@ class dbinsert:
                 }
             list.append(js)
         return list
-    
+    def update_status_server(self,server,status):
+        self.server.update_one({"host": server}, {"$set": {"status": status}})
     def select_specific_servers(self,server):
         list = []
         for dict in self.server.find():

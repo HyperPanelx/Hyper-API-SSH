@@ -98,7 +98,22 @@ class MultiOps:
         except:
             pass
 
-
+    def check_status_server(self):
+        try:
+            res = self.mg.list_servers()
+            for dict in res : 
+                try:
+                    server = dict['host']
+                    status = dict['status']
+                    self.ssh_main__('ls',server)
+                except:
+                    status = 'disable'
+                    self.mg.update_status_server(server,status)
+            return self.mg.list_servers()
+        except Exception:
+            print(traceback.print_exc())
+            return False
+        
     def del_user(self,server,user):
         command=f'userdel {user}'
         result=self.ssh_main__(command,server)

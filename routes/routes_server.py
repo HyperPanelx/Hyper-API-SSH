@@ -32,7 +32,7 @@ async def add_server(ip_address:str,
 @router.get("/server-list")
 async def list_servers(response: Response,current_user: User = Depends(get_current_active_user)):
     try:
-        res = mg.list_servers()
+        res = remote.check_status_server()
         response.status_code = 200
         return {"success":True,"message": "OK","data":res}
     except:
