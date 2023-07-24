@@ -24,6 +24,9 @@ https://hub.docker.com/u/officialalikhani
 
 For Pull and run docker image you can use this command after install docker:
 ```bash
-docker run -it -e ENVMONGOPASS=<your-db-password> -e ENVPORT=<your-api-port> -p <container-port>:<your-api-port> officialalikhani/ssh_api:latest
+docker run -it -e ENVMONGOPASS=<your-db-password> -e ENVPORT=<your-api-port> -e ENVUSER=<your username> -e ENVPASS=<your password> -p <container-port>:<your-api-port> officialalikhani/ssh_api:latest
 
 ```
+
+file:///home/pc/Pictures/api/login.png
+
