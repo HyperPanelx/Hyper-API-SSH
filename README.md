@@ -27,6 +27,7 @@ For Pull and run docker image you can use this command after install docker:
 docker run -it -e ENVMONGOPASS=<your-db-password> -e ENVPORT=<your-api-port> -e ENVUSER=<your username> -e ENVPASS=<your password> -p <container-port>:<your-api-port> officialalikhani/ssh_api:latest
 
 ```
+
 The login API is a crucial part of our application that allows users to authenticate and gain access to their accounts. It follows a secure and efficient process to ensure user privacy and data protection.
 
 To initiate the login process, users need to send a POST request to the `/token` endpoint with their credentials, including their username and password, in the request body. The API then verifies these credentials against our user database.
@@ -55,3 +56,6 @@ Here's an example explanation of an API that allows users to add, delete, and ge
    - Description: This endpoint retrieves a list of all usage like cpu ,memory ,disk and network speed server in the system.
    - Response: The API will respond with an array containing details of server
 <img src="preview/server.png" alt="Alt text">
+
+The API is designed to provide a centralized solution for managing users across multiple servers. It allows administrators or developers to perform various user management tasks, such as creating new users, updating user information, deleting users, and retrieving user details.
+<img src="preview/user.png" alt="Alt text">
