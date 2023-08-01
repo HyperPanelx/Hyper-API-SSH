@@ -26,7 +26,11 @@ class sshtnl:
                     result=self.multi.ssh_main__(command,ipaddress)
                     pattern =  r'ssh->(\b(?:\d{1,3}\.){3}\d{1,3}\b)'
                     est = re.findall(pattern,result)
-                    lenuser=(len(est))
+                    counts = Counter(est)
+                    list_count=[]
+                    for dict_count in counts:
+                            list_count.append(dict_count)
+                    lenuser=(len(list_count))
                     if lenuser > 0:
                         list.append({'username':user,'lenuser':lenuser,'ipaddress':ipaddress,'client_ip':est})
                 except:
@@ -46,7 +50,11 @@ class sshtnl:
             result=subprocess.getoutput(command)
             pattern =  r'ssh->(\b(?:\d{1,3}\.){3}\d{1,3}\b)'
             est = re.findall(pattern,result)
-            return est
+            counts = Counter(est)
+            list_count=[]
+            for dict_count in counts:
+                    list_count.append(dict_count)
+            return list_count
         except:
             False
         
