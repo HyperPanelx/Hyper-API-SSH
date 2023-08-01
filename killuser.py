@@ -5,20 +5,21 @@ from db import dbinsert
 mg=dbinsert()
 obj=sshtnl()
 remote=MultiOps()
-def kill_user(multi:int):
+def kill_user():
     count = 0
     while(True):   
         count +=1
-        for multiuser in (1,multi):
+        for multiuser in range(1,6):
             print(f'multi = {multiuser} | while = {count}')
-            alluserOne=mg.select_user_multi_en(multiuser)
-            for username in alluserOne: 
+            alluser=mg.select_user_multi_en(multiuser)
+            for username in alluser: #username one one
                 try:
-                    usertun = obj.get_user_tun_all(username)
+                    usertun = obj.get_user_tun_all(username) # get len online user
                     for dict in usertun:
                         username = dict['username']
                         ipaddress = dict['ipaddress']
                         usertun = dict['lenuser']
+                        print(username,ipaddress)
                     if usertun > multiuser:
                         count_kill=mg.select_count_kill(username)
                         count_kill_update = count_kill + 1
@@ -29,7 +30,7 @@ def kill_user(multi:int):
                         else:
                             remote.killall(username,ipaddress)
                             print(f'kill {username}')
-                        if count_kill >= 4:
+                        if count_kill >= 6:
                             if ipaddress == 'localhost':
                                 obj.lockuser(username)
                                 print('locked '+username)
@@ -40,5 +41,5 @@ def kill_user(multi:int):
                             mg.update_status_user(username,'disable')
                 except:
                     pass
-        time.sleep(60)
-kill_user(2)
+        time.sleep(1)
+kill_user()

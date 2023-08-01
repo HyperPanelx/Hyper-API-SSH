@@ -9,6 +9,8 @@ from names_generator import generate_name
 import time
 from pymongo.errors import DuplicateKeyError
 import traceback
+from collections import Counter
+
 class MultiOps:
     def __init__(self):
         self.mg = dbinsert()
@@ -44,10 +46,11 @@ class MultiOps:
             for strip in reg:
                 if strip != 'root@notty' and strip != 'root' and strip != '[accepted]'and strip !='root@pts/0'and strip !="[net]": 
                     list.append(strip)
-            return list
+            counts = Counter(list)
+            return counts
         except Exception:
             print(traceback.format_exc())
-            False
+            return False
 
     def killall(self,user,server):            
         command=f"killall -u {user}"

@@ -10,6 +10,7 @@ from names_generator import generate_name
 from pymongo.errors import DuplicateKeyError
 from .multi import MultiOps
 import traceback
+from collections import Counter
 class sshtnl:
     def __init__(self):
         self.mg = dbinsert()
@@ -20,30 +21,32 @@ class sshtnl:
             list=[]
             for dict in self.mg.select_servers() :
                 ipaddress=dict['host']
-                command="ps aux | grep sshd"
+                command=f"lsof -i -n | egrep '\<ssh\>' | grep {user}"
                 try:
                     result=self.multi.ssh_main__(command,ipaddress)
-                    est = re.findall(f'sshd: ({user}[^\w]*)\n',result)
+                    pattern =  r'ssh->(\b(?:\d{1,3}\.){3}\d{1,3}\b)'
+                    est = re.findall(pattern,result)
                     lenuser=(len(est))
+                    if lenuser > 0:
+                        list.append({'username':user,'lenuser':lenuser,'ipaddress':ipaddress,'client_ip':est})
                 except:
                     pass
-                if lenuser > 0:
-                    list.append({'username':user,'lenuser':lenuser,'ipaddress':ipaddress})
-                lenuser = 0
             result=self.get_user_tun(user)
-            if result != 0:
-                list.append({'username':user,'lenuser':result,'ipaddress':'localhost',})
+            local_len_user=(len(result))
+            list.append({'username':user,'lenuser':local_len_user,'ipaddress':'localhost','client_ip':result})
             return list
-        except:
+           
+        except Exception:
+            print(traceback.format_exc())
             False
 
     def get_user_tun(self,user):
         try:
-            string="ps aux | grep sshd"
-            result=subprocess.getoutput(string)
-            est = re.findall(f'sshd: ({user}[^\w]*)\n',result)
-            lenuser=(len(est))
-            return lenuser
+            command=f"lsof -i -n | egrep '\<ssh\>' | grep {user}"
+            result=subprocess.getoutput(command)
+            pattern =  r'ssh->(\b(?:\d{1,3}\.){3}\d{1,3}\b)'
+            est = re.findall(pattern,result)
+            return est
         except:
             False
         
@@ -54,9 +57,10 @@ class sshtnl:
             result = subprocess.getoutput(command)
             reg = re.findall('sshd: ([aA-zZ][^\s]*)\n',result)
             for strip in reg:
-                if strip != 'root@notty' and strip != 'root' and strip != '[accepted]':
+                if strip != 'root@notty' and strip != 'root' and strip != '[accepted]'and strip != '[net]':
                     list.append(strip)
-            return {'localhost':'localhost','users':list}
+            counts = Counter(list)
+            return {'localhost':'localhost','users':counts}
         except:
             False
 
@@ -67,14 +71,13 @@ class sshtnl:
                 ipaddress=dict['host']
                 res=self.multi.active_user(ipaddress)
                 if res == False:
-                    ipaddress = 'Server is Down'
-                    res = ''
+                    res = 'Server is Down'
                 list.append({'ip-address':ipaddress,'users':res})
             local=self.active_user()
             list.append(local)
             return list
         else:
-            res=self.active_user(mode)
+            res=self.multi.active_user(mode)
             return({'ip-address':mode,'users':res})
         
     def killall(self,user):            
@@ -183,43 +186,6 @@ class sshtnl:
                 'Download': self.get_size(io_2.bytes_recv)  ,
                 'Upload Speed': self.get_size(us / UPDATE_DELAY),
                 'Download Speed': self.get_size(ds / UPDATE_DELAY)}
-    
-    async def bulk(self,jsname):
-        list=[]
-        with open('./uploads/'+jsname, 'r',encoding="utf-8") as json_File:
-            sample_load_file = load(json_File)
-        try:
-            for single in sample_load_file:
-                passwdgen=passgen()
-                username=single['user']
-                try:
-                    validation= User(
-                            user=username,
-                            multi=single['multi'],
-                            exdate=single['exdate'],
-                            telegram_id=single['telegram_id'],
-                            phone=0,
-                            email='' ,
-                            referral='' ,
-                            traffic='' ,
-                            desc='',
-                            passwd=passwdgen,
-                            status='enable',
-                    )
-                    await validation.insert() 
-                    self.mg.insert_count_kill(username,'0')
-                    list.append({'user':username,'passwd':passwdgen})
-                except DuplicateKeyError:
-                    # Handle duplicate key error
-                    print("Duplicate key value")
-                    return 'exist'
-                command=f"useradd {username} --shell /usr/sbin/nologin"
-                res =subprocess.getoutput(command)
-                if res != '':
-                    return 'exist'
-            return list
-        except Exception as e:
-            print(e)
     
     async def user_passwd_gen(self,multi_,exdate_,count_,server_,ordered_by_,server):
         list=[]

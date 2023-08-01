@@ -289,3 +289,16 @@ def active_user_(response: Response,
         res = obj.all_active_users(server)
         response.status_code = 200
         return {"success":True,"message": "OK","data":res}
+
+@router.get("/user-active-ip")
+def active_user_ip(response: Response,
+                 username:str,
+                 current_user: User = Depends(get_current_active_user)):
+    try:
+        res = obj.get_user_tun_all(username)
+        response.status_code = 200
+        return {"success":True,"message": "OK","data":res}
+    except Exception as e :
+        print(e)
+        response.status_code = 404
+        return {"success":False,"message": "faild","data":""}
