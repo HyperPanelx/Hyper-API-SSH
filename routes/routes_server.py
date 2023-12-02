@@ -29,6 +29,20 @@ async def add_server(ip_address:str,
         response.status_code = 404
         return {"success":False,"message": "faild","data":""}
     
+@router.get("/server-change-status", dependencies=[Depends(has_permission)])
+async def add_server(ip_address:str,
+                status:str,
+                response: Response,
+                current_user: User = Depends(get_current_active_user)):
+    try:
+        mg.update_status_server(ip_address,status)
+        response.status_code = 200
+        return {"success":True,"message": "OK","data":""}
+    except:
+        response.status_code = 404
+        return {"success":False,"message": "faild","data":""}
+
+
 @router.get("/server-list")
 async def list_servers(response: Response,current_user: User = Depends(get_current_active_user)):
     try:

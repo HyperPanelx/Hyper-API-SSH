@@ -302,3 +302,15 @@ def active_user_ip(response: Response,
         print(e)
         response.status_code = 404
         return {"success":False,"message": "faild","data":""}
+
+
+@router.get("/list-admin-users")
+def change_multi(response: Response,
+                current_user: User = Depends(get_current_active_user)):
+    try:
+        res = mg.select_user_()
+        response.status_code = 200
+        return {"success":True,"message": "OK","data":f"{res}"}
+    except:
+        response.status_code = 404
+        return {"success":False,"message": "faild","data":""}
