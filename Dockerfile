@@ -2,6 +2,10 @@ FROM python:3.10.6
 COPY ./req.txt .
 RUN pip install --upgrade pip
 RUN pip install  -r req.txt
+RUN echo 'MONGO_PASSWD = "password"
+    MONGO_USER ="admin"
+    MONGO_ADDR = "mongodb://mongodb:27017/"
+    MONGO_ADDR_URI = "mongodb:27017/"' > db/.env
 COPY docker-entrypoint.sh /docker-entrypoint.sh
 ADD ./ .
 EXPOSE 3838
